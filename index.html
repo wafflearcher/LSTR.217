@@ -1,0 +1,2181 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AEON-OS // LSTR.217 // ЛИЧНОЕ ДЕЛО</title>
+<style>
+  :root {
+    --gray-0: #0b0d10;
+    --gray-1: #12151a;
+    --gray-2: #1a1e25;
+    --gray-3: #242a33;
+    --gray-4: #3a424e;
+    --gray-5: #5a6472;
+    --gray-6: #8a94a2;
+    --gray-7: #b8c0cc;
+    --gray-8: #e2e8f0;
+
+    --blue: #3d5a80;
+    --blue-dim: #243b55;
+    --blue-soft: #5a7aa0;
+    --blue-deep: #14213a;
+
+    --fire: #c85a3a;
+    --fire-dim: #8a3a24;
+    --fire-soft: #e87a5a;
+
+    --ok: #7ab87a;
+    --warn: #d9a03d;
+
+    --line: #2a323d;
+    --line-soft: #1f252e;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  *::-webkit-scrollbar { width: 12px; height: 12px; background: transparent; }
+  *::-webkit-scrollbar-track {
+    background: var(--gray-1);
+    border-left: 1px solid var(--line);
+  }
+  *::-webkit-scrollbar-thumb {
+    background: var(--gray-4);
+    border: 1px solid var(--gray-5);
+  }
+  *::-webkit-scrollbar-thumb:hover { background: var(--gray-5); }
+  * { scrollbar-width: thin; scrollbar-color: var(--gray-4) var(--gray-1); }
+
+  html, body {
+    height: 100%;
+    background: #000;
+    color: var(--gray-6);
+    font-family: "Courier New", "VT323", monospace;
+    overflow: hidden;
+  }
+
+  /* ================= BOOT ================= */
+  .boot {
+    position: fixed; inset: 0; z-index: 100;
+    background:
+      radial-gradient(ellipse at 50% 0%, #1a2028 0%, #0b0d10 55%, #000 100%);
+    overflow: hidden;
+    transition: opacity .8s ease;
+  }
+  .boot.done { opacity: 0; pointer-events: none; }
+
+  .boot .grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(90,100,114,.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(90,100,114,.06) 1px, transparent 1px);
+    background-size: 32px 32px;
+    pointer-events: none;
+  }
+  .boot .grid::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 50%, transparent 30%, rgba(0,0,0,.85) 100%);
+  }
+
+  .boot .scanlines {
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(0deg,
+      rgba(184,192,204,.05) 0 1px,
+      transparent 1px 3px);
+    pointer-events: none;
+    z-index: 5;
+    animation: flicker 4s infinite;
+  }
+
+  @keyframes flicker {
+    0%, 100% { opacity: .8; }
+    48% { opacity: .4; }
+    49% { opacity: .9; }
+  }
+
+  .boot .vignette {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,.85) 100%);
+    pointer-events: none;
+    z-index: 6;
+  }
+
+  /* Заголовок загрузки */
+  .boot .brand {
+    position: absolute;
+    top: 40px; left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    z-index: 10;
+    pointer-events: none;
+  }
+  .boot .brand .logo {
+    font-size: 34px;
+    letter-spacing: 14px;
+    color: var(--gray-7);
+    text-shadow: 0 0 10px rgba(184,192,204,.3);
+    font-weight: bold;
+  }
+  .boot .brand .sub {
+    margin-top: 6px;
+    font-size: 11px;
+    letter-spacing: 6px;
+    color: var(--gray-5);
+  }
+  .boot .brand .line {
+    width: 220px;
+    height: 1px;
+    margin: 12px auto 0;
+    background: linear-gradient(90deg, transparent, var(--gray-4), transparent);
+  }
+
+  /* Рабочий стол */
+  .desktop {
+    position: absolute; inset: 0;
+    z-index: 20;
+    pointer-events: none;
+  }
+  .desktop > * { pointer-events: auto; }
+
+  /* ---- Иконки файлов (папки) ---- */
+  .file-icon {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    width: 110px;
+    cursor: pointer;
+    user-select: none;
+    text-align: center;
+    transition: transform .1s ease;
+  }
+  .file-icon:hover { transform: translate(-1px, -1px); }
+  .file-icon:active { transform: translate(1px, 1px); }
+
+  .file-icon .icon {
+    width: 64px; height: 56px;
+    position: relative;
+    filter: drop-shadow(2px 2px 0 rgba(0,0,0,.6));
+  }
+  .file-icon .icon svg { width: 100%; height: 100%; display: block; }
+
+  .file-icon .label {
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: var(--gray-7);
+    line-height: 1.3;
+    text-shadow: 1px 1px 0 rgba(0,0,0,.9);
+    padding: 2px 4px;
+    background: rgba(11,13,16,.55);
+    border: 1px solid transparent;
+    max-width: 100%;
+    word-break: break-word;
+  }
+  .file-icon:hover .label {
+    color: var(--gray-8);
+    border-color: var(--gray-4);
+    background: rgba(26,30,37,.85);
+  }
+
+  /* Позиции */
+  .file-pmp     { top: 24px; left: 24px; }
+  .file-prod    { top: 150px; left: 24px; }
+  .file-sep     { bottom: 24px; right: 24px; }
+  .file-dossier {
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 260px;
+  }
+  .file-dossier:hover { transform: translate(-50%, -50%) translate(-1px, -1px); }
+  .file-dossier:active { transform: translate(-50%, -50%) translate(1px, 1px); }
+  .file-dossier .icon { width: 140px; height: 120px; }
+
+  .file-dossier .label {
+    font-size: 13px;
+    letter-spacing: 3px;
+    color: var(--fire-soft);
+    border: 1px solid var(--fire-dim);
+    background: rgba(138,58,36,.15);
+    padding: 6px 10px;
+    text-shadow: 0 0 6px rgba(200,90,58,.5);
+  }
+  .file-dossier:hover .label {
+    color: #ffd0c0;
+    border-color: var(--fire);
+    background: rgba(138,58,36,.35);
+    box-shadow: 0 0 12px rgba(200,90,58,.4);
+  }
+
+  /* Индикатор-подсказка */
+  .file-dossier .hint {
+    margin-top: 4px;
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: var(--gray-5);
+    animation: blinkHint 1.4s steps(2) infinite;
+  }
+  @keyframes blinkHint { 50% { opacity: .2; } }
+
+  /* ---- Статус-бар снизу ---- */
+  .boot .statusbar {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 26px;
+    background: var(--gray-1);
+    border-top: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 14px;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--gray-5);
+    z-index: 25;
+  }
+  .boot .statusbar .l { display: flex; gap: 18px; align-items: center; }
+  .boot .statusbar .dot {
+    width: 7px; height: 7px;
+    background: var(--ok);
+    box-shadow: 0 0 6px var(--ok);
+    display: inline-block;
+    margin-right: 6px;
+  }
+
+  /* ---- Модальные окна (папки) ---- */
+  .modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.72);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    padding: 20px;
+    backdrop-filter: blur(2px);
+  }
+  .modal.visible { display: flex; animation: modalIn .2s ease-out; }
+  @keyframes modalIn { 0% { opacity: 0; } 100% { opacity: 1; } }
+
+  .modal .panel {
+    width: min(760px, 96vw);
+    max-height: 86vh;
+    background: var(--gray-1);
+    border: 1px solid var(--gray-4);
+    box-shadow: 0 0 0 1px #000, 0 0 40px rgba(0,0,0,.8);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: panelIn .22s ease-out;
+  }
+  @keyframes panelIn { 0% { transform: translateY(8px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+
+  .modal .panel .head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: var(--gray-2);
+    border-bottom: 1px solid var(--gray-4);
+    font-size: 12px;
+    letter-spacing: 3px;
+    color: var(--gray-7);
+    text-transform: uppercase;
+  }
+  .modal .panel .head .x {
+    width: 22px; height: 22px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--gray-4);
+    color: var(--gray-6);
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+  }
+  .modal .panel .head .x:hover {
+    background: var(--fire-dim);
+    border-color: var(--fire);
+    color: #ffd0c0;
+  }
+
+  .modal .panel .content {
+    padding: 20px 24px;
+    overflow-y: auto;
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--gray-7);
+  }
+  .modal .panel .content h3 {
+    font-size: 12px;
+    letter-spacing: 3px;
+    color: var(--blue-soft);
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 6px;
+    margin: 20px 0 10px;
+    text-transform: uppercase;
+  }
+  .modal .panel .content h3:first-child { margin-top: 0; }
+  .modal .panel .content p { margin-bottom: 10px; }
+  .modal .panel .content ul { margin-left: 20px; margin-bottom: 12px; }
+  .modal .panel .content li { margin-bottom: 4px; }
+  .modal .panel .content .fire { color: var(--fire-soft); font-weight: bold; }
+  .modal .panel .content strong { color: var(--gray-8); }
+
+  /* Отдельный файл — красная тема */
+  .modal.fire .panel {
+    border-color: var(--fire-dim);
+    box-shadow: 0 0 0 1px #000, 0 0 40px rgba(138,58,36,.35);
+  }
+  .modal.fire .panel .head {
+    background: #2a1410;
+    border-bottom-color: var(--fire-dim);
+    color: var(--fire-soft);
+  }
+  .modal.fire .panel .head .x:hover {
+    background: var(--fire-dim);
+    border-color: var(--fire);
+    color: #fff;
+  }
+  .modal.fire .panel .content h3 {
+    color: var(--fire-soft);
+    border-bottom-color: var(--fire-dim);
+  }
+
+  /* ================= ДОСЬЕ ================= */
+  .dossier-wrap { display: none; }
+  .dossier-wrap.visible { display: block; }
+
+  .crt {
+    position: relative;
+    width: 100vw; height: 100vh;
+    background: radial-gradient(ellipse at center, #12151a 0%, #000 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .crt::before {
+    content: "";
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(0deg,
+      rgba(90,100,114,.05) 0 1px, transparent 1px 3px);
+    pointer-events: none;
+    z-index: 10;
+    animation: flicker 4s infinite;
+  }
+  .crt::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,.8) 100%);
+    pointer-events: none;
+    z-index: 11;
+  }
+
+  .screen {
+    position: relative;
+    width: min(1180px, 95vw);
+    height: min(800px, 93vh);
+    background: var(--gray-1);
+    border: 1px solid var(--gray-4);
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+    box-shadow:
+      inset 0 0 0 1px #000,
+      0 0 40px rgba(61,90,128,.08);
+    animation: bootScreen 1.1s ease-out;
+  }
+  @keyframes bootScreen {
+    0% { opacity: 0; transform: scaleY(.02); filter: brightness(3); }
+    40% { opacity: 1; transform: scaleY(.02); }
+    60% { transform: scaleY(1.02); }
+    100% { transform: scaleY(1); filter: brightness(1); }
+  }
+
+  /* Верхняя полоса */
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--gray-5);
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 10px;
+    text-transform: uppercase;
+    flex: 0 0 auto;
+  }
+  .topbar .blink { animation: blink 1.1s steps(2) infinite; color: var(--ok); }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* Заголовок */
+  .title {
+    margin-top: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 12px;
+    flex-wrap: wrap;
+    flex: 0 0 auto;
+  }
+  .title .main {
+    font-size: 26px;
+    letter-spacing: 8px;
+    color: var(--gray-8);
+    text-shadow: 0 0 12px rgba(184,192,204,.25);
+  }
+  .title .main .accent { color: var(--fire-soft); }
+  .title .meta {
+    text-align: right;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--gray-5);
+    line-height: 1.6;
+  }
+  .title .meta .id { color: var(--gray-7); }
+
+  /* Вкладки */
+  .tabs {
+    display: flex;
+    gap: 0;
+    margin-top: 16px;
+    border-bottom: 1px solid var(--gray-4);
+    flex-wrap: wrap;
+    flex: 0 0 auto;
+  }
+  .tab {
+    padding: 9px 18px;
+    font-family: inherit;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gray-5);
+    background: transparent;
+    border: 1px solid transparent;
+    border-bottom: none;
+    cursor: pointer;
+    position: relative;
+    top: 1px;
+    transition: color .12s ease, background .12s ease;
+    user-select: none;
+  }
+  .tab:hover { color: var(--gray-7); background: rgba(90,100,114,.06); }
+  .tab.active {
+    color: var(--gray-8);
+    background: var(--gray-2);
+    border-color: var(--gray-4);
+    border-bottom: 1px solid var(--gray-2);
+    box-shadow: inset 0 2px 0 0 var(--blue-soft);
+  }
+  .tab.locked::after {
+    content: " ▪";
+    color: var(--warn);
+    font-size: 10px;
+  }
+  .tab.active.locked::after { content: " ▫"; color: var(--ok); }
+
+  /* Контент */
+  .tab-content {
+    display: none;
+    flex: 1 1 auto;
+    min-height: 0;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .tab-content.active { display: flex; }
+
+  .data {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 16px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--gray-6);
+  }
+  .tab-content > .data { margin-top: 18px; }
+
+  .tab-content > .grid {
+    margin-top: 18px;
+    flex: 1 1 auto;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 24px;
+    overflow: hidden;
+  }
+
+  /* Портрет */
+  .portrait {
+    border: 1px solid var(--gray-4);
+    background: var(--gray-0);
+    padding: 6px;
+    position: relative;
+    overflow: hidden;
+    align-self: start;
+    aspect-ratio: 3 / 4;
+    max-height: 300px;
+  }
+  .portrait img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    filter: grayscale(.55) contrast(1.1) brightness(.9);
+    display: block;
+    position: relative;
+    z-index: 1;
+  }
+  .portrait::after {
+    content: "";
+    position: absolute; inset: 6px;
+    background: repeating-linear-gradient(0deg,
+      rgba(184,192,204,.08) 0 1px, transparent 1px 3px);
+    pointer-events: none;
+    z-index: 3;
+  }
+  .portrait .label {
+    position: absolute;
+    bottom: 6px; left: 6px; right: 6px;
+    text-align: center;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--gray-7);
+    background: rgba(11,13,16,.85);
+    padding: 4px 0;
+    z-index: 4;
+    border-top: 1px solid var(--gray-4);
+  }
+  .portrait .corner {
+    position: absolute;
+    width: 14px; height: 14px;
+    border-color: var(--blue-soft);
+    z-index: 5;
+  }
+  .corner.tl { top: 4px; left: 4px; border-top: 1px solid; border-left: 1px solid; }
+  .corner.tr { top: 4px; right: 4px; border-top: 1px solid; border-right: 1px solid; }
+  .corner.bl { bottom: 4px; left: 4px; border-bottom: 1px solid; border-left: 1px solid; }
+  .corner.br { bottom: 4px; right: 4px; border-bottom: 1px solid; border-right: 1px solid; }
+
+  /* Секции */
+  .section { margin-bottom: 20px; }
+  .section h2 {
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--blue-soft);
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 6px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section h2::before {
+    content: "▸";
+    color: var(--gray-5);
+    font-size: 10px;
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 12px;
+    padding: 3px 0;
+    font-size: 13px;
+  }
+  .row .k { color: var(--gray-5); }
+  .row .v { color: var(--gray-7); }
+  .row .v.warn { color: var(--warn); }
+  .row .v.ok { color: var(--ok); }
+  .row .v.fire { color: var(--fire-soft); }
+
+  .row.full {
+    display: block;
+    padding: 8px 0;
+    line-height: 1.7;
+    color: var(--gray-6);
+    font-size: 13px;
+  }
+
+  .bar {
+    display: inline-block;
+    width: 130px;
+    height: 8px;
+    border: 1px solid var(--gray-4);
+    position: relative;
+    vertical-align: middle;
+    margin-right: 8px;
+    background: var(--gray-0);
+  }
+  .bar::after {
+    content: "";
+    position: absolute;
+    inset: 1px;
+    width: var(--w, 50%);
+    background: linear-gradient(90deg, var(--blue-dim), var(--blue-soft));
+    box-shadow: 0 0 6px rgba(90,122,160,.5);
+  }
+
+  /* Постер */
+  .poster-section { display: flex; justify-content: center; margin-bottom: 22px; }
+  .poster {
+    position: relative;
+    width: 100%;
+    max-width: 680px;
+    border: 1px solid var(--gray-4);
+    background: var(--gray-0);
+    padding: 6px;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+  }
+  .poster img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: center;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    filter: grayscale(.4) contrast(1.1) brightness(.9);
+    display: block;
+  }
+  .poster::after {
+    content: "";
+    position: absolute; inset: 6px;
+    background: repeating-linear-gradient(0deg,
+      rgba(184,192,204,.07) 0 1px, transparent 1px 3px);
+    pointer-events: none;
+    z-index: 3;
+  }
+
+  /* ===== СНАРЯЖЕНИЕ ===== */
+  .equip-intro {
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: var(--gray-5);
+    text-transform: uppercase;
+    border-left: 3px solid var(--blue-soft);
+    padding-left: 12px;
+    margin-bottom: 20px;
+  }
+
+  .equip-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 14px;
+  }
+
+  .equip-card {
+    position: relative;
+    border: 1px solid var(--gray-4);
+    background: linear-gradient(180deg, var(--gray-2) 0%, var(--gray-1) 100%);
+    padding: 14px 16px 16px;
+    display: flex;
+    gap: 16px;
+    transition: border-color .15s ease, transform .15s ease;
+  }
+  .equip-card:hover {
+    border-color: var(--blue-soft);
+    transform: translateY(-2px);
+  }
+  .equip-card.fire:hover { border-color: var(--fire); }
+
+  .equip-card .thumb {
+    flex: 0 0 72px;
+    height: 72px;
+    border: 1px solid var(--gray-4);
+    background: var(--gray-0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .equip-card .thumb::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(0deg,
+      rgba(184,192,204,.05) 0 1px, transparent 1px 3px);
+    pointer-events: none;
+  }
+  .equip-card .thumb svg {
+    width: 56px; height: 56px;
+    image-rendering: pixelated;
+    shape-rendering: crispEdges;
+    filter: drop-shadow(2px 2px 0 rgba(0,0,0,.6));
+  }
+
+  .equip-card .info { flex: 1 1 auto; min-width: 0; }
+  .equip-card .info h4 {
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: var(--gray-8);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+  .equip-card .info p {
+    font-size: 12px;
+    line-height: 1.55;
+    color: var(--gray-6);
+    margin-bottom: 4px;
+  }
+  .equip-card .info ul {
+    margin: 6px 0 0 16px;
+    font-size: 11px;
+    line-height: 1.55;
+    color: var(--gray-5);
+  }
+  .equip-card .info li { margin-bottom: 2px; }
+  .equip-card .info .tag {
+    display: inline-block;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border: 1px solid var(--gray-4);
+    color: var(--gray-6);
+    margin-top: 6px;
+  }
+  .equip-card .info .tag.fire {
+    border-color: var(--fire-dim);
+    color: var(--fire-soft);
+    background: rgba(138,58,36,.12);
+  }
+  .equip-card .info .engrave {
+    font-family: inherit;
+    color: var(--fire-soft);
+    letter-spacing: 1px;
+  }
+
+  /* ===== Взаимоотношения ===== */
+  .relations-wrap {
+    padding-bottom: 20px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .relation-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 8px 0 18px;
+  }
+  .legend-chip {
+    font-size: 9px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    padding: 3px 8px;
+    text-transform: uppercase;
+    background: var(--c, #5a6472);
+    color: #0b0d10;
+    border: 1px solid rgba(0,0,0,.5);
+  }
+
+  .rel-trust { --c: #d99a3d; }
+  .rel-longing { --c: #b57ce0; }
+  .rel-neutral { --c: #9c8f7c; }
+  .rel-friend { --c: #8fd14f; }
+  .rel-bond { --c: #ffa94d; }
+  .rel-love { --c: #ff5f8f; }
+  .rel-dead { --c: #6b6b6b; }
+  .rel-fear { --c: #ff4d4d; }
+  .rel-disappoint { --c: #c98a3a; }
+  .rel-respect { --c: #ffd166; }
+  .rel-regret { --c: #6fa8ff; }
+  .rel-sympathy { --c: #ffb38a; }
+  .rel-disgust { --c: #a04b2f; }
+
+  .relation-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .rel-card {
+    position: relative;
+    padding: 12px 14px;
+    border: 1px solid var(--gray-4);
+    background: var(--gray-2);
+    cursor: pointer;
+    transition: transform .12s ease, border-color .12s ease, background .12s ease;
+  }
+  .rel-card:hover {
+    transform: translate(-1px, -1px);
+    border-color: var(--blue-soft);
+    background: var(--gray-3);
+    box-shadow: 2px 2px 0 0 rgba(0,0,0,.5);
+  }
+  .rel-card:active { transform: translate(1px, 1px); box-shadow: none; }
+
+  .rel-statuses {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+    border-bottom: 1px dotted var(--gray-4);
+  }
+  .rel-status {
+    font-size: 9px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    background: var(--c, #5a6472);
+    color: #0b0d10;
+    padding: 2px 7px;
+    border: 1px solid rgba(0,0,0,.5);
+  }
+  .rel-card .rel-name {
+    font-size: 13px;
+    letter-spacing: 1px;
+    color: var(--gray-8);
+    line-height: 1.3;
+    padding-right: 14px;
+  }
+  .rel-card .rel-preview {
+    margin-top: 6px;
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--gray-5);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .rel-card::after {
+    content: "▸";
+    position: absolute;
+    top: 10px; right: 10px;
+    color: var(--gray-4);
+    font-size: 10px;
+  }
+  .rel-card:hover::after { color: var(--blue-soft); }
+
+  .rel-detail {
+    display: none;
+    flex: 1 1 auto;
+    min-height: 0;
+    flex-direction: column;
+  }
+  .relations-wrap.detail-open .rel-list-view { display: none; }
+  .relations-wrap.detail-open .rel-detail { display: flex; }
+
+  .rel-back {
+    align-self: flex-start;
+    background: transparent;
+    border: 1px solid var(--gray-4);
+    color: var(--gray-6);
+    font-family: inherit;
+    font-size: 10px;
+    letter-spacing: 3px;
+    padding: 7px 16px;
+    cursor: pointer;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    transition: background .12s ease, color .12s ease, border-color .12s ease;
+  }
+  .rel-back:hover {
+    background: var(--gray-3);
+    border-color: var(--blue-soft);
+    color: var(--gray-8);
+  }
+
+  .rel-detail-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 14px;
+  }
+  .rel-detail-card {
+    border: 1px solid var(--gray-4);
+    background: var(--gray-2);
+    padding: 22px 26px;
+    animation: relOpen .25s ease-out;
+  }
+  @keyframes relOpen { 0% { opacity: 0; transform: translateY(6px); } 100% { opacity: 1; transform: translateY(0); } }
+
+  .rel-detail-name {
+    font-size: 22px;
+    letter-spacing: 4px;
+    color: var(--gray-8);
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--gray-4);
+    margin-bottom: 16px;
+    word-break: break-word;
+  }
+  .rel-detail-statuses {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .rel-detail-status {
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    background: var(--c, #5a6472);
+    color: #0b0d10;
+    padding: 5px 13px;
+    border: 1px solid rgba(0,0,0,.5);
+  }
+  .rel-detail-note {
+    font-size: 13px;
+    line-height: 1.8;
+    color: var(--gray-7);
+    letter-spacing: .5px;
+    white-space: pre-line;
+  }
+
+  /* ===== Архив ===== */
+  .archive-lock {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    font-size: 13px;
+    letter-spacing: 2px;
+  }
+  .archive-lock .lock-title {
+    color: var(--warn);
+    font-size: 16px;
+    letter-spacing: 6px;
+  }
+  .archive-lock .lock-label {
+    color: var(--gray-5);
+    font-size: 11px;
+    text-align: center;
+    line-height: 1.7;
+  }
+  .archive-lock input {
+    background: var(--gray-0);
+    border: 1px solid var(--gray-4);
+    color: var(--gray-8);
+    font-family: inherit;
+    font-size: 16px;
+    letter-spacing: 8px;
+    text-align: center;
+    padding: 10px 14px;
+    width: 220px;
+    outline: none;
+    caret-color: var(--blue-soft);
+  }
+  .archive-lock input:focus {
+    border-color: var(--blue-soft);
+    box-shadow: 0 0 0 1px var(--blue-dim), 0 0 12px rgba(61,90,128,.35);
+  }
+  .archive-lock button {
+    background: var(--gray-3);
+    border: 1px solid var(--gray-4);
+    color: var(--gray-7);
+    font-family: inherit;
+    font-size: 11px;
+    letter-spacing: 3px;
+    padding: 9px 24px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: background .12s ease, border-color .12s ease, color .12s ease;
+  }
+  .archive-lock button:hover {
+    background: var(--blue-dim);
+    border-color: var(--blue-soft);
+    color: var(--gray-8);
+  }
+  .archive-lock .error {
+    color: var(--fire-soft);
+    font-size: 10px;
+    letter-spacing: 2px;
+    min-height: 14px;
+  }
+
+  .archive-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+    display: none;
+    margin-top: 18px;
+    flex-direction: column;
+  }
+  .archive-content.unlocked { display: flex; }
+
+  .album {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .album-stage {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    gap: 10px;
+  }
+  .album-arrow {
+    flex: 0 0 auto;
+    width: 44px;
+    background: var(--gray-2);
+    border: 1px solid var(--gray-4);
+    color: var(--gray-6);
+    font-family: inherit;
+    font-size: 22px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background .12s ease, color .12s ease;
+  }
+  .album-arrow:hover {
+    background: var(--blue-dim);
+    color: var(--gray-8);
+    border-color: var(--blue-soft);
+  }
+  .album-arrow:disabled { opacity: .3; cursor: default; background: transparent; }
+
+  .album-frame {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+    border: 1px solid var(--gray-4);
+    background: var(--gray-0);
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .album-photo {
+    position: relative;
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+  .album-photo img {
+    max-width: 100%; max-height: 100%;
+    width: auto; height: auto;
+    object-fit: contain;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    filter: grayscale(.4) contrast(1.1) brightness(.92);
+    display: block;
+    animation: albumFade .3s ease;
+  }
+  @keyframes albumFade { 0% { opacity: 0; } 100% { opacity: 1; } }
+  .album-photo::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(0deg,
+      rgba(184,192,204,.07) 0 1px, transparent 1px 3px);
+    pointer-events: none;
+  }
+  .album-caption {
+    text-align: center;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--gray-5);
+    padding: 4px 0;
+    min-height: 16px;
+  }
+  .album-counter {
+    text-align: center;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--blue-soft);
+    padding-top: 6px;
+    border-top: 1px dashed var(--gray-4);
+  }
+  .album-dots {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    flex-wrap: wrap;
+    padding-top: 4px;
+  }
+  .album-dot {
+    width: 8px; height: 8px;
+    background: transparent;
+    border: 1px solid var(--gray-4);
+    cursor: pointer;
+    padding: 0;
+  }
+  .album-dot:hover { background: var(--gray-4); }
+  .album-dot.active {
+    background: var(--blue-soft);
+    border-color: var(--blue-soft);
+    box-shadow: 0 0 6px rgba(90,122,160,.6);
+  }
+
+  /* Нижняя полоса */
+  .footer {
+    margin-top: 14px;
+    border-top: 1px solid var(--gray-4);
+    padding-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--gray-5);
+    letter-spacing: 2px;
+    flex: 0 0 auto;
+  }
+  .footer .keys span {
+    color: var(--gray-7);
+    border: 1px solid var(--gray-4);
+    padding: 1px 6px;
+    margin-right: 4px;
+    font-size: 9px;
+  }
+
+  .glitch {
+    position: absolute; inset: 0;
+    pointer-events: none;
+    background: var(--gray-7);
+    mix-blend-mode: overlay;
+    opacity: 0;
+    z-index: 9;
+  }
+  .glitch.active { animation: glitch .18s steps(3) 1; }
+  @keyframes glitch {
+    0% { opacity: .18; transform: translateX(-3px); }
+    50% { opacity: .07; transform: translateX(4px); }
+    100% { opacity: 0; transform: translateX(0); }
+  }
+
+  /* ===== АДАПТИВ ===== */
+  @media (max-width: 820px) {
+    .tab-content > .grid {
+      grid-template-columns: 1fr;
+      overflow-y: auto;
+    }
+    .portrait { height: 220px; width: 165px; margin: 0 auto; aspect-ratio: auto; max-height: none; }
+    .data { overflow: visible; padding-right: 0; }
+    .title .main { font-size: 18px; letter-spacing: 4px; }
+    .row { grid-template-columns: 130px 1fr; font-size: 12px; }
+    .tab { padding: 7px 11px; font-size: 10px; letter-spacing: 1px; }
+    .poster { aspect-ratio: 4 / 3; }
+    .relation-grid { grid-template-columns: 1fr; }
+    .equip-grid { grid-template-columns: 1fr; }
+    .file-pmp { top: 16px; left: 16px; width: 90px; }
+    .file-prod { top: 120px; left: 16px; width: 90px; }
+    .file-sep { bottom: 16px; right: 16px; width: 100px; }
+    .file-dossier { width: 200px; }
+    .file-dossier .icon { width: 100px; height: 86px; }
+    .modal .panel .content { padding: 16px; }
+    .album-arrow { width: 34px; font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= BOOT ================= -->
+<div class="boot" id="boot">
+  <div class="grid"></div>
+
+  <div class="brand">
+    <div class="logo">AEON</div>
+    <div class="sub">UNIT DATA TERMINAL</div>
+    <div class="line"></div>
+  </div>
+
+  <div class="desktop">
+
+    <!-- ПМП -->
+    <div class="file-icon file-pmp" data-open="pmp">
+      <div class="icon">
+        <svg viewBox="0 0 64 56" shape-rendering="crispEdges">
+          <!-- папка -->
+          <path d="M4 10 h22 l6 6 h28 v34 H4 z" fill="#1f252e" stroke="#5a6472" stroke-width="2"/>
+          <path d="M4 16 h56" stroke="#3a424e" stroke-width="2"/>
+          <!-- красный крест -->
+          <rect x="26" y="26" width="12" height="4" fill="#c85a3a"/>
+          <rect x="30" y="22" width="4" height="12" fill="#c85a3a"/>
+        </svg>
+      </div>
+      <div class="label">ПМП</div>
+    </div>
+
+    <!-- Производство -->
+    <div class="file-icon file-prod" data-open="prod">
+      <div class="icon">
+        <svg viewBox="0 0 64 56" shape-rendering="crispEdges">
+          <path d="M4 10 h22 l6 6 h28 v34 H4 z" fill="#1f252e" stroke="#5a6472" stroke-width="2"/>
+          <path d="M4 16 h56" stroke="#3a424e" stroke-width="2"/>
+          <!-- гаечный ключ -->
+          <rect x="22" y="30" width="20" height="4" fill="#8a94a2"/>
+          <rect x="20" y="28" width="4" height="8" fill="#8a94a2"/>
+          <rect x="40" y="28" width="4" height="8" fill="#8a94a2"/>
+          <rect x="28" y="34" width="8" height="3" fill="#3d5a80"/>
+        </svg>
+      </div>
+      <div class="label">Производство и обслуживание</div>
+    </div>
+
+    <!-- Отдельный файл -->
+    <div class="file-icon file-sep" data-open="sep">
+      <div class="icon">
+        <svg viewBox="0 0 64 56" shape-rendering="crispEdges">
+          <path d="M4 10 h22 l6 6 h28 v34 H4 z" fill="#2a1410" stroke="#8a3a24" stroke-width="2"/>
+          <path d="M4 16 h56" stroke="#8a3a24" stroke-width="2"/>
+          <!-- огонёк -->
+          <path d="M32 24 L36 32 L33 34 L38 42 L32 46 L26 42 L31 34 L28 32 Z"
+                fill="#c85a3a" stroke="#e87a5a" stroke-width="1"/>
+        </svg>
+      </div>
+      <div class="label" style="color:#e87a5a;">Отдельный файл</div>
+    </div>
+
+    <!-- ДОСЬЕ -->
+    <div class="file-icon file-dossier" id="btnDossier">
+      <div class="icon">
+        <svg viewBox="0 0 140 120" shape-rendering="crispEdges">
+          <!-- папка -->
+          <path d="M8 22 h44 l10 10 h70 v76 H8 z"
+                fill="#1a1e25" stroke="#c85a3a" stroke-width="3"/>
+          <path d="M8 34 h124" stroke="#8a3a24" stroke-width="3"/>
+          <!-- бумаги -->
+          <rect x="26" y="44" width="88" height="6" fill="#5a6472"/>
+          <rect x="26" y="56" width="70" height="4" fill="#3a424e"/>
+          <rect x="26" y="64" width="80" height="4" fill="#3a424e"/>
+          <rect x="26" y="72" width="60" height="4" fill="#3a424e"/>
+          <!-- огонёк-печать -->
+          <path d="M100 84 L108 96 L104 100 L112 112 L100 118 L88 112 L96 100 L92 96 Z"
+                fill="#c85a3a" stroke="#e87a5a" stroke-width="1.5"/>
+        </svg>
+      </div>
+      <div class="label">ДОСЬЕ LSTR.217</div>
+      <div class="hint">НАЖМИ, ЧТОБЫ ОТКРЫТЬ</div>
+    </div>
+
+  </div>
+
+  <div class="statusbar">
+    <div class="l">
+      <span><span class="dot"></span>СИСТЕМА ГОТОВА</span>
+      <span id="bootClock">--:--:--</span>
+    </div>
+    <div>AEON-OS v2.7 // ERES M-427</div>
+  </div>
+
+  <div class="scanlines"></div>
+  <div class="vignette"></div>
+</div>
+
+<!-- ================= МОДАЛЬНОЕ ОКНО: ПМП ================= -->
+<div class="modal" id="modalPmp">
+  <div class="panel">
+    <div class="head">
+      <span>ПМП // Первая Медицинская Помощь</span>
+      <div class="x" data-close="pmp">×</div>
+    </div>
+    <div class="content">
+      <h3>Навыки оказания ПМП</h3>
+      <p>Модуль LSTR.217 получила базовые и расширенные навыки оказания первой медицинской помощи в ходе службы в гарнизоне жилого сектора на Хаймате.</p>
+      <ul>
+        <li>Остановка кровотечений (пальцевое прижатие, жгут, давящая повязка)</li>
+        <li>Обработка ран и профилактика инфекций</li>
+        <li>Иммобилизация конечностей при переломах</li>
+        <li>Сердечно-лёгочная реанимация (СЛР)</li>
+        <li>Помощь при ожогах и отморожениях</li>
+        <li>Транспортировка раненых</li>
+      </ul>
+
+      <h3>Применение на практике</h3>
+      <p>В отсутствие деятельности, связанной с производством и обслуживанием снаряжения ННА, LSTR.217 занималась оказанием медицинской помощи. С периодичностью пересекалась с модулями HABR.</p>
+      <p>Проверка резонанса в отношении данной ситуации не выявила ничего неправомерного, хотя было замечено явное раздражение от общения с одним из модулей HABR.</p>
+      <p>Несмотря на это, их общение продолжалось на протяжении двух с половиной недель, вплоть до отбытия модуля HABR. В результате чего LSTR.217 начала проявлять меньше раздражения при общении с данными модулями.</p>
+
+      <h3>Заметки наблюдателя</h3>
+      <p>Навыки ПМП поддерживаются на достаточном уровне. Рекомендовано периодическое повторное обучение для поддержания квалификации.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ================= МОДАЛЬНОЕ ОКНО: ПРОИЗВОДСТВО ================= -->
+<div class="modal" id="modalProd">
+  <div class="panel">
+    <div class="head">
+      <span>Производство и обслуживание // Снаряжение ННА</span>
+      <div class="x" data-close="prod">×</div>
+    </div>
+    <div class="content">
+      <h3>Производство боеприпасов</h3>
+      <p>LSTR.217 была направлена на производство боеприпасов для нужд ННА. В её обязанности входило:</p>
+      <ul>
+        <li>Сборка и снаряжение патронов различных калибров</li>
+        <li>Контроль качества пороха и капсюлей</li>
+        <li>Упаковка и маркировка готовой продукции</li>
+        <li>Ведение учёта произведённых боеприпасов</li>
+      </ul>
+
+      <h3>Починка брони</h3>
+      <p>Вторым направлением деятельности была починка брони служащих ННА:</p>
+      <ul>
+        <li>Диагностика повреждений бронепластин</li>
+        <li>Замена повреждённых сегментов</li>
+        <li>Сварка и пайка металлических элементов</li>
+        <li>Настройка систем крепления и амортизации</li>
+      </ul>
+
+      <h3>Служебная история</h3>
+      <p>Служба шла в основном без происшествий. Модуль продолжал штатную деятельность по производству и обслуживанию снаряжения.</p>
+      <p>Дослужилась до звания <strong>Ober-feldwebel</strong>, в результате чего от своих сослуживцев получила в подарок зажигалку с гравировкой <span class="fire">"Знамени Нации"</span>.</p>
+      <p>Через некоторое время модуль начала зацикливаться на своём объекте обессивности, с намерением пополнять свою коллекцию.</p>
+      <p>Сослуживцы подбивали начать использовать зажигалки по назначению, в результате чего модуль научилась курить, что позже вошло в привычку.</p>
+      <p>Через некоторое время, из-за того что загорелась данными бытовыми предметами, получила позывной <span class="fire">Flamme</span>.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ================= МОДАЛЬНОЕ ОКНО: ОТДЕЛЬНЫЙ ФАЙЛ ================= -->
+<div class="modal fire" id="modalSep">
+  <div class="panel">
+    <div class="head">
+      <span>Отдельный файл // Коллекция объектов</span>
+      <div class="x" data-close="sep">×</div>
+    </div>
+    <div class="content">
+      <h3>Коллекция объектов обессивности</h3>
+      <p>В результате службы LSTR.217 собрала коллекцию из четырёх объектов. Подробности ниже.</p>
+
+      <h3>Объект 01</h3>
+      <p><strong>Бензиновая зажигалка с гравировкой "Знамя Нации"</strong></p>
+      <p>Подарок от сослуживцев за выслугу лет и присвоение звания Ober-feldwebel. Первый объект коллекции. С этой зажигалки началась привычка к курению.</p>
+
+      <h3>Объект 02</h3>
+      <p><strong>Бензиновая зажигалка с гравировкой "красная надпись Flamme"</strong></p>
+      <p>Зажигалка с позывным, полученным после инцидента с возгоранием. Символизирует признание среди сослуживцев.</p>
+
+      <h3>Объект 03</h3>
+      <p><strong>Бензиновая зажигалка с гравировкой "изображение Патрон 7.62 MM"</strong></p>
+      <p>Зажигалка с изображением патрона, отсылающая к производственной деятельности модуля. Напоминание о службе на производстве боеприпасов.</p>
+
+      <h3>Объект 04</h3>
+      <p><strong>Бензиновая зажигалка с гравировкой "изображение Ореол"</strong></p>
+      <p>Зажигалка с изображением ореола. Последний известный объект коллекции. Символика ореола остаётся нерасшифрованной.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ================= ДОСЬЕ ================= -->
+<div class="dossier-wrap" id="dossier">
+  <div class="crt">
+    <div class="glitch" id="glitch"></div>
+
+    <div class="screen">
+      <div class="topbar">
+        <span>AEON-OS v2.7 // EINHEIT-DATENBANK</span>
+        <span>СЕАНС: <span class="blink">█</span> // СБ-03</span>
+      </div>
+
+      <div class="title">
+        <div class="main">ЛИЧНОЕ ДЕЛО // <span class="accent">LSTR</span></div>
+        <div class="meta">
+          ID: <span class="id">LSTR.217</span><br>
+          ПОЗЫВНОЙ: <span style="color:#e87a5a">FLAMME</span>
+        </div>
+      </div>
+
+      <div class="tabs" id="tabs">
+        <button class="tab active" data-tab="dossier">Досье</button>
+        <button class="tab" data-tab="summary">Сводка</button>
+        <button class="tab" data-tab="equipment">Снаряжение</button>
+        <button class="tab" data-tab="relations">Взаимоотношения</button>
+        <button class="tab locked" data-tab="archive">Архив</button>
+      </div>
+
+      <!-- ВКЛАДКА: ДОСЬЕ -->
+      <div class="tab-content active" id="tab-dossier">
+        <div class="grid">
+          <div class="portrait">
+            <span class="corner tl"></span>
+            <span class="corner tr"></span>
+            <span class="corner bl"></span>
+            <span class="corner br"></span>
+            <img src="lstr.png" alt="LSTR.217">
+            <div class="label">LSTR.217 // ОПОЗНАНО</div>
+          </div>
+
+          <div class="data" id="data">
+            <div class="section">
+              <h2>Базовые параметры</h2>
+              <div class="row"><span class="k">Класс:</span><span class="v">Replika — LSTR</span></div>
+              <div class="row"><span class="k">Серия:</span><span class="v">LSTR // "Фламме"</span></div>
+              <div class="row"><span class="k">Назначение:</span><span class="v">Производство и обслуживание</span></div>
+              <div class="row"><span class="k">Статус:</span><span class="v ok">АКТИВЕН</span></div>
+              <div class="row"><span class="k">Приписка:</span><span class="v">ERES — M-427</span></div>
+            </div>
+
+            <div class="section">
+              <h2>Внешние характеристики</h2>
+              <div class="row"><span class="k">Рост:</span><span class="v">170 см</span></div>
+              <div class="row"><span class="k">Волосы:</span><span class="v">Короткие</span></div>
+              <div class="row"><span class="k">Особые метки:</span><span class="v">Нашивка в виде Костра на подсумке</span></div>
+            </div>
+
+            <div class="section">
+              <h2>Психопрофиль</h2>
+              <div class="row"><span class="k">Стабильность:</span>
+                <span class="v"><span class="bar" style="--w:100%"></span>100%</span>
+              </div>
+              <div class="row"><span class="k">Память:</span>
+                <span class="v"><span class="bar" style="--w:100%"></span>100%</span>
+              </div>
+              <div class="row"><span class="k">Отклонения:</span><span class="v ok">НЕ ОБНАРУЖЕНЫ</span></div>
+              <div class="row"><span class="k">Примечания:</span><span class="v fire">Объект обессивности — зажигалки</span></div>
+            </div>
+
+            <div class="section">
+              <h2>Служебная история</h2>
+              <div class="row"><span class="k">17.04.2157:</span><span class="v">Собрана на Хаймате, стандартный промышленный завод</span></div>
+              <div class="row"><span class="k">17.04.2157:</span><span class="v">Приступила к службе в гарнизоне жилого сектора</span></div>
+              <div class="row"><span class="k">—</span><span class="v">Получила навыки оказания ПМП</span></div>
+              <div class="row"><span class="k">—</span><span class="v">Направлена на производство боеприпасов и починку брони ННА</span></div>
+              <div class="row"><span class="k">—</span><span class="v">Присвоено звание Ober-feldwebel</span></div>
+              <div class="row"><span class="k">—</span><span class="v">Получен позывной <span class="fire">Flamme</span></span></div>
+              <div class="row"><span class="k">—</span><span class="v">Направлена на комплекс ERES M-427</span></div>
+            </div>
+
+            <div class="section">
+              <h2>Примечание наблюдателя</h2>
+              <div class="row full">
+                "Зациклена на объекте обессивности — зажигалках. Коллекция из четырёх объектов.<br>
+                Привычка к курению. Позывной: Flamme."
+                <br><span style="color:#3d5a80">— СБ-03</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ВКЛАДКА: СВОДКА -->
+      <div class="tab-content" id="tab-summary">
+        <div class="data">
+          <div class="poster-section">
+            <div class="poster">
+              <img src="lstr_poster.png" alt="LSTR.217 // Flamme">
+            </div>
+          </div>
+
+          <div class="section">
+            <h2>Происхождение и служба</h2>
+            <div class="row full">
+              Модуль LSTR.217 была собрана на Хаймате 17.04.2157 на стандартном промышленном
+              заводе для сборки модулей военной направленности. После сборки сразу же приступила
+              к ведению службы в гарнизоне одного из жилых секторов.
+            </div>
+          </div>
+
+          <div class="section">
+            <h2>ПМП и медицинская практика</h2>
+            <div class="row full">
+              Получила навыки оказания ПМП. Затем в основном была направлена на производство
+              боеприпасов и починку брони служащих ННА.
+            </div>
+            <div class="row full">
+              В отсутствии деятельности, связанной с производством и обслуживанием снаряжения ННА,
+              занималась оказанием медицинской помощи. С периодичностью пересекалась с модулями HABR,
+              в результате чего с ней можно было часто заметить конкретного юнита данной модели.
+            </div>
+          </div>
+
+          <div class="section">
+            <h2>Взаимодействие с HABR</h2>
+            <div class="row full">
+              Проверка резонанса в отношении данной ситуации не выявила ничего неправомерного,
+              хотя было замечено явное раздражение от общения с этим модулем.
+            </div>
+            <div class="row full">
+              Несмотря на это, их общение продолжалось на протяжении двух с половиной недель,
+              вплоть до отбытия модуля HABR. В результате чего 217 начала проявлять меньше
+              раздражения при общении с данными модулями.
+            </div>
+          </div>
+
+          <div class="section">
+            <h2>Производство и обслуживание</h2>
+            <div class="row full">
+              Служба шла в основном без происшествий. Модуль продолжал штатную деятельность
+              по производству и обслуживанию снаряжения. Дослужилась до звания Ober-feldwebel,
+              в результате чего от своих сослуживцев получила в подарок зажигалку с гравировкой
+              "Знамени Нации".
+            </div>
+            <div class="row full">
+              Через некоторое время модуль начала зацикливаться на своём объекте обессивности,
+              с намерением пополнять свою коллекцию. Сослуживцы подбивали начать использовать
+              зажигалки по назначению, в результате чего модуль научилась курить, что позже
+              вошло в привычку.
+            </div>
+            <div class="row full">
+              Через некоторое время, из-за того что загорелась данными бытовыми предметами,
+              получила позывной <span class="fire">Flamme</span>.
+            </div>
+          </div>
+
+          <div class="section">
+            <h2>Заключение</h2>
+            <div class="row full">
+              В результате службы собрала коллекцию из четырёх объектов, подробности в отдельном
+              файле. Через некоторое время была направлена на комплекс ERES M-427.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ВКЛАДКА: СНАРЯЖЕНИЕ -->
+      <div class="tab-content" id="tab-equipment">
+        <div class="data">
+          <div class="equip-intro">Базовый комплект снаряжения модуля LSTR.217</div>
+
+          <div class="equip-grid">
+
+            <!-- Подсумок -->
+            <div class="equip-card">
+              <div class="thumb">
+                <svg viewBox="0 0 64 64" shape-rendering="crispEdges">
+                  <!-- ремень -->
+                  <rect x="26" y="4" width="12" height="14" fill="#3a424e"/>
+                  <rect x="28" y="4" width="8" height="14" fill="#242a33"/>
+                  <!-- подсумок -->
+                  <rect x="14" y="18" width="36" height="40" fill="#3a424e" stroke="#5a6472" stroke-width="2"/>
+                  <rect x="14" y="28" width="36" height="3" fill="#242a33"/>
+                  <!-- клапан -->
+                  <rect x="16" y="20" width="32" height="8" fill="#5a6472"/>
+                  <!-- нашивка-костёр -->
+                  <path d="M28 40 L32 48 L29 50 L34 58 L32 60 L26 56 L29 50 L26 48 Z"
+                        fill="#c85a3a" stroke="#e87a5a" stroke-width="1"/>
+                </svg>
+              </div>
+              <div class="info">
+                <h4>Набедренный подсумок</h4>
+                <p>Стандартный армейский подсумок для ношения на бедре.</p>
+                <p>На углу нашивка в виде <span style="color:#e87a5a">Костра</span>.</p>
+                <span class="tag fire">Нашивка: Костёр</span>
+              </div>
+            </div>
+
+            <!-- Набор для чистки -->
+            <div class="equip-card">
+              <div class="thumb">
+                <svg viewBox="0 0 64 64" shape-rendering="crispEdges">
+                  <!-- коробка -->
+                  <rect x="8" y="22" width="48" height="34" fill="#3a424e" stroke="#5a6472" stroke-width="2"/>
+                  <rect x="8" y="28" width="48" height="3" fill="#242a33"/>
+                  <!-- шомпол -->
+                  <rect x="14" y="36" width="36" height="3" fill="#8a94a2"/>
+                  <rect x="12" y="34" width="4" height="7" fill="#5a6472"/>
+                  <!-- ёршик -->
+                  <rect x="18" y="42" width="22" height="2" fill="#b8a06a"/>
+                  <rect x="18" y="46" width="22" height="2" fill="#b8a06a"/>
+                  <!-- маслёнка -->
+                  <rect x="42" y="42" width="10" height="10" fill="#3d5a80" stroke="#5a7aa0" stroke-width="1"/>
+                  <rect x="45" y="38" width="4" height="4" fill="#3d5a80"/>
+                  <!-- крышка -->
+                  <rect x="8" y="16" width="48" height="6" fill="#5a6472" stroke="#8a94a2" stroke-width="1"/>
+                </svg>
+              </div>
+              <div class="info">
+                <h4>Набор для чистки снаряжения</h4>
+                <ul>
+                  <li>Шомпол</li>
+                  <li>Ёршики (латунные и нейлоновые)</li>
+                  <li>Вишер (игольчатые и петлевые)</li>
+                  <li>Ветошь</li>
+                  <li>Маслёнка</li>
+                  <li>Раствор холодного воронения (сталь)</li>
+                  <li>Раствор холодного воронения (бронза, медь, латунь)</li>
+                  <li>Средство для удаления старого воронения</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Сигареты -->
+            <div class="equip-card">
+              <div class="thumb">
+                <svg viewBox="0 0 64 64" shape-rendering="crispEdges">
+                  <!-- пачка -->
+                  <rect x="16" y="14" width="32" height="44" fill="#8a94a2" stroke="#b8c0cc" stroke-width="2"/>
+                  <rect x="16" y="14" width="32" height="8" fill="#3d5a80"/>
+                  <!-- надпись -->
+                  <rect x="20" y="28" width="24" height="3" fill="#3a424e"/>
+                  <rect x="20" y="34" width="18" height="3" fill="#3a424e"/>
+                  <rect x="20" y="40" width="22" height="3" fill="#3a424e"/>
+                  <!-- сигарета сверху -->
+                  <rect x="22" y="8" width="4" height="8" fill="#e2e8f0"/>
+                  <rect x="22" y="8" width="4" height="3" fill="#c85a3a"/>
+                  <!-- огонёк -->
+                  <circle cx="24" cy="7" r="2" fill="#e87a5a"/>
+                </svg>
+              </div>
+              <div class="info">
+                <h4>Пачка сигарет Ротфронт</h4>
+                <p>Стандартная пачка сигарет, произведённая на Ротфронте.</p>
+                <p>Пристрастие к курению появилось после подначивания сослуживцев использовать зажигалки по назначению.</p>
+                <span class="tag">Привычка</span>
+              </div>
+            </div>
+
+            <!-- Зажигалка 1 -->
+            <div class="equip-card fire">
+              <div class="thumb">
+                <svg viewBox="0 0 64 64" shape-rendering="crispEdges">
+                  <!-- корпус -->
+                  <rect x="22" y="20" width="20" height="36" fill="#5a6472" stroke="#8a94a2" stroke-width="2"/>
+                  <rect x="22" y="28" width="20" height="3" fill="#3a424e"/>
+                  <rect x="22" y="48" width="20" height="3" fill="#3a424e"/>
+                  <!-- крышка -->
+                  <rect x="22" y="14" width="20" height="7" fill="#8a94a2" stroke="#b8c0cc" stroke-width="1"/>
+                  <!-- колесо -->
+                  <circle cx="32" cy="17" r="3" fill="#242a33" stroke="#b8c0cc" stroke-width="1"/>
+                  <!-- огонь -->
+                  <path d="M32 4 L35 10 L32 12 L36 17 L32 19 L28 17 L30 12 L29 10 Z"
+                        fill="#c85a3a" stroke="#e87a5a" stroke-width="1"/>
+                  <!-- гравировка "Знамя" -->
+                  <rect x="26" y="36" width="12" height="2" fill="#e87a5a"/>
+                  <rect x="26" y="40" width="8" height="2" fill="#e87a5a"/>
+                </svg>
+              </div>
+              <div class="info">
+                <h4>Бензиновая зажигалка</h4>
+                <p><strong>Гравировка:</strong> <span class="engrave">"Знамя Нации"</span></p>
+                <p>Подарок сослуживцев за выслугу лет и присвоение звания Ober-feldwebel. Первый объект коллекции.</p>
+                <span class="tag fire">Объект 01</span>
+              </div>
+            </div>
+
+            <!-- Зажигалка 2 -->
+            <div class="equip-card fire">
+              <div class="thumb">
+                <svg viewBox="0 0 64 64" shape-rendering="crispEdges">
+                  <rect x="22" y="20" width="20" height="36" fill="#4a5462" stroke="#8a94a2" stroke-width="2"/>
+                  <rect x="22" y="28" width="20" height="3" fill="#3a424e"/>
+                  <rect x="22" y="48" width="20" height="3" fill="#3a424e"/>
+                  <rect x="22" y="14" width="20" height="7" fill="#8a94a2" stroke="#b8c0cc" stroke-width="1"/>
+                  <circle cx="32" cy="17" r="3" fill="#242a33" stroke="#b8c0cc" stroke-width="1"/>
+                  <path d="M32 4 L35 10 L32 12 L36 17 L32 19 L28 17 L30 12 L29 10 Z"
+                        fill="#c85a3a" stroke="#e87a5a" stroke-width="1"/>
+                  <!-- красная надпись Flamme -->
+                  <rect x="24" y="34" width="16" height="3" fill="#c85a3a"/>
+                  <rect x="26" y="40" width="12" height="2" fill="#c85a3a"/>
+                  <rect x="28" y="44" width="8" height="2" fill="#c85a3a"/>
+                </svg>
+              </div>
+              <div class="info">
+                <h4>Бензиновая зажигалка</h4>
+                <p><strong>Гравировка:</strong> <span class="engrave">"красная надпись Flamme"</span></p>
+                <p>Зажигалка с позывным, полученным после инцидента с возгоранием.</p>
+                <span class="tag fire">Объект 02</span>
+              </div>
+            </div>
+
+            <!-- Зажигалка 3 -->
+            <div class="equip-card fire">
+              <div class="thumb">
+                <svg viewBox="0 0 64 64" shape-rendering="crispEdges">
+                  <rect x="22" y="20" width="20" height="36" fill="#3a424e" stroke="#5a6472" stroke-width="2"/>
+                  <rect x="22" y="28" width="20" height="3" fill="#242a33"/>
+                  <rect x="22" y="48" width="20" height="3" fill="#242a33"/>
+                  <rect x="22" y="14" width="20" height="7" fill="#5a6472" stroke="#8a94a2" stroke-width="1"/>
+                  <circle cx="32" cy="17" r="3" fill="#242a33" stroke="#8a94a2" stroke-width="1"/>
+                  <path d="M32 4 L35 10 L32 12 L36 17 L32 19 L28 17 L30 12 L29 10 Z"
+                        fill="#c85a3a" stroke="#e87a5a" stroke-width="1"/>
+                  <!-- патрон 7.62 -->
+                  <rect x="28" y="34" width="8" height="14" fill="#b8a06a" stroke="#e2c88a" stroke-width="1"/>
+                  <rect x="28" y="32" width="8" height="3" fill="#8a6a3a"/>
+                  <rect x="30" y="46" width="4" height="2" fill="#8a6a3a"/>
+                </svg>
+              </div>
+              <div class="info">
+                <h4>Бензиновая зажигалка</h4>
+                <p><strong>Гравировка:</strong> <span class="engrave">"изображение Патрон 7.62 MM"</span></p>
+                <p>Отсылка к производственной деятельности модуля. Напоминание о службе на производстве боеприпасов.</p>
+                <span class="tag fire">Объект 03</span>
+              </div>
+            </div>
+
+            <!-- Зажигалка 4 -->
+            <div class="equip-card fire">
+              <div class="thumb">
+                <svg viewBox="0 0 64 64" shape-rendering="crispEdges">
+                  <rect x="22" y="20" width="20" height="36" fill="#5a6472" stroke="#8a94a2" stroke-width="2"/>
+                  <rect x="22" y="28" width="20" height="3" fill="#3a424e"/>
+                  <rect x="22" y="48" width="20" height="3" fill="#3a424e"/>
+                  <rect x="22" y="14" width="20" height="7" fill="#8a94a2" stroke="#b8c0cc" stroke-width="1"/>
+                  <circle cx="32" cy="17" r="3" fill="#242a33" stroke="#b8c0cc" stroke-width="1"/>
+                  <path d="M32 4 L35 10 L32 12 L36 17 L32 19 L28 17 L30 12 L29 10 Z"
+                        fill="#c85a3a" stroke="#e87a5a" stroke-width="1"/>
+                  <!-- ореол -->
+                  <ellipse cx="32" cy="38" rx="7" ry="9" fill="none" stroke="#ffd166" stroke-width="2"/>
+                  <ellipse cx="32" cy="38" rx="3" ry="4" fill="#ffd166"/>
+                  <rect x="30" y="46" width="4" height="6" fill="#c85a3a"/>
+                </svg>
+              </div>
+              <div class="info">
+                <h4>Бензиновая зажигалка</h4>
+                <p><strong>Гравировка:</strong> <span class="engrave">"изображение Ореол"</span></p>
+                <p>Последний известный объект коллекции. Символика ореола остаётся нерасшифрованной.</p>
+                <span class="tag fire">Объект 04</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ВКЛАДКА: ВЗАИМООТНОШЕНИЯ -->
+      <div class="tab-content" id="tab-relations">
+        <div class="data relations-wrap" id="relationsWrap">
+          <div class="rel-list-view" id="relListView">
+            <div class="section">
+              <h2>Взаимоотношения на комплексе</h2>
+              <div class="relation-legend">
+                <span class="legend-chip rel-trust">Недоверие</span>
+                <span class="legend-chip rel-longing">Тоска</span>
+                <span class="legend-chip rel-neutral">Нейтральные</span>
+                <span class="legend-chip rel-friend">Дружба</span>
+                <span class="legend-chip rel-bond">Крепкая связь</span>
+                <span class="legend-chip rel-love">Любовь</span>
+                <span class="legend-chip rel-dead">Мертв</span>
+                <span class="legend-chip rel-fear">Страх</span>
+                <span class="legend-chip rel-disappoint">Разочарование</span>
+                <span class="legend-chip rel-respect">Уважение</span>
+                <span class="legend-chip rel-regret">Сожаление</span>
+                <span class="legend-chip rel-sympathy">Симпатия</span>
+                <span class="legend-chip rel-disgust">Отвращение</span>
+              </div>
+            </div>
+
+            <div class="relation-grid" id="relationGrid"></div>
+
+            <div class="section">
+              <h2>Заметка</h2>
+              <div class="row full">
+                Нажми на карточку, чтобы открыть подробную запись.
+              </div>
+            </div>
+          </div>
+
+          <div class="rel-detail" id="relDetail">
+            <button class="rel-back" id="relBack">← НАЗАД К СПИСКУ</button>
+            <div class="rel-detail-body" id="relDetailBody"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ВКЛАДКА: АРХИВ -->
+      <div class="tab-content" id="tab-archive">
+        <div class="archive-lock" id="archiveLock">
+          <div class="lock-title">ДОСТУП ОГРАНИЧЕН</div>
+          <div class="lock-label">
+            Уровень допуска: <span style="color:#b8c0cc">СБ-03</span><br>
+            Введите код доступа для просмотра архива
+          </div>
+          <input type="password" id="archivePassword" maxlength="12" autocomplete="off" placeholder="••••">
+          <div class="error" id="archiveError"></div>
+          <button id="archiveSubmit">ПОДТВЕРДИТЬ</button>
+        </div>
+
+        <div class="archive-content" id="archiveContent">
+          <div class="album">
+            <div class="album-stage">
+              <button class="album-arrow" id="albumPrev" aria-label="Назад">‹</button>
+              <div class="album-frame">
+                <div class="album-photo">
+                  <img id="albumImg" src="" alt="Архивное фото">
+                </div>
+              </div>
+              <button class="album-arrow" id="albumNext" aria-label="Вперёд">›</button>
+            </div>
+            <div class="album-caption" id="albumCaption"></div>
+            <div class="album-dots" id="albumDots"></div>
+            <div class="album-counter" id="albumCounter">— / —</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <div class="keys">
+          <span>F1</span> СПРАВКА
+          <span>F5</span> ОБНОВИТЬ
+          <span>ESC</span> ВЫХОД
+        </div>
+        <div id="clock">--:--:--</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    "use strict";
+
+    /* ===== Часы на boot-экране ===== */
+    function tickBootClock() {
+      var el = document.getElementById('bootClock');
+      if (!el) return;
+      var d = new Date();
+      var p = function (n) { return String(n).padStart(2, '0'); };
+      el.textContent = p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds());
+    }
+    setInterval(tickBootClock, 1000); tickBootClock();
+
+    /* ===== Открытие досье ===== */
+    function openDossier() {
+      var boot = document.getElementById('boot');
+      var dossier = document.getElementById('dossier');
+      if (!boot || !dossier) return;
+      boot.classList.add('done');
+      setTimeout(function () {
+        boot.style.display = 'none';
+        dossier.classList.add('visible');
+      }, 800);
+    }
+    var btnDossier = document.getElementById('btnDossier');
+    if (btnDossier) btnDossier.addEventListener('click', openDossier);
+
+    /* ===== Модальные окна (папки) ===== */
+    var modals = {
+      pmp:  document.getElementById('modalPmp'),
+      prod: document.getElementById('modalProd'),
+      sep:  document.getElementById('modalSep')
+    };
+
+    function openModal(key) {
+      if (modals[key]) modals[key].classList.add('visible');
+    }
+    function closeModal(key) {
+      if (modals[key]) modals[key].classList.remove('visible');
+    }
+
+    document.querySelectorAll('[data-open]').forEach(function (el) {
+      el.addEventListener('click', function (e) {
+        e.stopPropagation();
+        openModal(el.getAttribute('data-open'));
+      });
+    });
+
+    document.querySelectorAll('[data-close]').forEach(function (el) {
+      el.addEventListener('click', function (e) {
+        e.stopPropagation();
+        closeModal(el.getAttribute('data-close'));
+      });
+    });
+
+    Object.keys(modals).forEach(function (key) {
+      var m = modals[key];
+      if (m) {
+        m.addEventListener('click', function (e) {
+          if (e.target === m) closeModal(key);
+        });
+      }
+    });
+
+    /* ===== Вкладки ===== */
+    var tabs = document.querySelectorAll('.tab');
+    var tabContents = document.querySelectorAll('.tab-content');
+    tabs.forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        var target = tab.getAttribute('data-tab');
+        tabs.forEach(function (t) { t.classList.remove('active'); });
+        tabContents.forEach(function (c) { c.classList.remove('active'); });
+        tab.classList.add('active');
+        var content = document.getElementById('tab-' + target);
+        if (content) content.classList.add('active');
+      });
+    });
+
+    /* ===== Взаимоотношения ===== */
+    var RELATIONS = [
+      { name: "ADLR", statuses: ["Нейтральные"],
+        note: "Пересекались в столовой. Обменялись парой фраз. Ничего примечательного." },
+      { name: "HABR.03.023 Strasser", statuses: ["Нейтральные"],
+        note: "Периодически пересекались во время оказания медицинской помощи. Явное раздражение от общения, но контакт продолжался две с половиной недели. После отбытия HABR раздражение снизилось." },
+      { name: "HABR.XX.XXX", statuses: ["Разочарование"],
+        note: "Конкретный юнит модели HABR, с которым LSTR.217 часто пересекалась. Проверка резонанса не выявила ничего неправомерного. Отношения остаются напряжёнными." },
+      { name: "LSTR.XXX", statuses: ["Дружба"],
+        note: "Сестра по серии. Общаются по служебным вопросам." },
+      { name: "STAR.XX.XXX", statuses: ["Уважение"],
+        note: "Уважение за профессионализм." }
+    ];
+
+    var ALBUM = [
+      { src: "1.png", caption: "ФОТО 01 // LSTR.217" },
+      { src: "2.png", caption: "ФОТО 02 // Хаймат" },
+      { src: "3.png", caption: "ФОТО 03 // Производство" },
+      { src: "4.png", caption: "ФОТО 04 // Коллекция" },
+      { src: "5.png", caption: "ФОТО 05 // Flamme" },
+      { src: "6.png", caption: "ФОТО 06 // ERES M-427" }
+    ];
+
+    var ARCHIVE_PASSWORD = '217';
+
+    function statusClass(status) {
+      var map = {
+        'Недоверие': 'rel-trust',
+        'Тоска': 'rel-longing',
+        'Нейтральные': 'rel-neutral',
+        'Дружба': 'rel-friend',
+        'Крепкая связь': 'rel-bond',
+        'Любовь': 'rel-love',
+        'Мертв': 'rel-dead',
+        'Страх': 'rel-fear',
+        'Разочарование': 'rel-disappoint',
+        'Уважение': 'rel-respect',
+        'Сожаление': 'rel-regret',
+        'Симпатия': 'rel-sympathy',
+        'Отвращение': 'rel-disgust'
+      };
+      return map[status] || 'rel-neutral';
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, function (c) {
+        return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
+      });
+    }
+
+    function previewOf(note) {
+      if (!note) return 'Записи отсутствуют.';
+      var firstLine = note.split('\n')[0];
+      return firstLine.length > 120 ? firstLine.slice(0, 117) + '…' : firstLine;
+    }
+
+    function renderStatuses(statuses, cls) {
+      if (!statuses || statuses.length === 0) return '';
+      return statuses.map(function (st) {
+        return '<span class="' + cls + ' ' + statusClass(st) + '">' + escapeHtml(st) + '</span>';
+      }).join('');
+    }
+
+    var relGrid = document.getElementById('relationGrid');
+    var relWrap = document.getElementById('relationsWrap');
+    var relDetailBody = document.getElementById('relDetailBody');
+    var relBack = document.getElementById('relBack');
+
+    RELATIONS.sort(function (a, b) {
+      return a.name.localeCompare(b.name, 'ru');
+    });
+
+    if (relGrid) {
+      RELATIONS.forEach(function (rel, idx) {
+        var card = document.createElement('div');
+        card.className = 'rel-card';
+        card.setAttribute('data-idx', idx);
+
+        var statusesHtml = rel.statuses && rel.statuses.length
+          ? '<div class="rel-statuses">' + renderStatuses(rel.statuses, 'rel-status') + '</div>'
+          : '';
+
+        card.innerHTML =
+          statusesHtml +
+          '<div class="rel-name">' + escapeHtml(rel.name) + '</div>' +
+          '<div class="rel-preview">' + escapeHtml(previewOf(rel.note)) + '</div>';
+
+        card.addEventListener('click', function () { openRelDetail(idx); });
+        relGrid.appendChild(card);
+      });
+    }
+
+    function openRelDetail(idx) {
+      var rel = RELATIONS[idx];
+      if (!rel || !relDetailBody) return;
+
+      var statusesHtml = rel.statuses && rel.statuses.length
+        ? '<div class="rel-detail-statuses">' + renderStatuses(rel.statuses, 'rel-detail-status') + '</div>'
+        : '';
+
+      var noteHtml = rel.note
+        ? '<div class="rel-detail-note">' + escapeHtml(rel.note) + '</div>'
+        : '<div class="rel-detail-note" style="opacity:.5">Нет записей.</div>';
+
+      relDetailBody.innerHTML =
+        '<div class="rel-detail-card">' +
+          '<div class="rel-detail-name">' + escapeHtml(rel.name) + '</div>' +
+          statusesHtml +
+          noteHtml +
+        '</div>';
+
+      if (relWrap) relWrap.classList.add('detail-open');
+      if (relDetailBody) relDetailBody.scrollTop = 0;
+    }
+
+    if (relBack) {
+      relBack.addEventListener('click', function () {
+        if (relWrap) relWrap.classList.remove('detail-open');
+      });
+    }
+
+    /* ===== Альбом ===== */
+    var albumIdx = 0;
+    var albumImg = document.getElementById('albumImg');
+    var albumCaption = document.getElementById('albumCaption');
+    var albumCounter = document.getElementById('albumCounter');
+    var albumDots = document.getElementById('albumDots');
+    var albumPrev = document.getElementById('albumPrev');
+    var albumNext = document.getElementById('albumNext');
+
+    function renderAlbum() {
+      if (!ALBUM.length || !albumImg) return;
+      var item = ALBUM[albumIdx];
+      albumImg.src = item.src;
+      albumImg.alt = item.caption || 'Архивное фото';
+      if (albumCaption) albumCaption.textContent = item.caption || '';
+      if (albumCounter) {
+        albumCounter.textContent =
+          String(albumIdx + 1).padStart(2, '0') + ' / ' +
+          String(ALBUM.length).padStart(2, '0');
+      }
+      if (albumDots) {
+        var dots = albumDots.querySelectorAll('.album-dot');
+        Array.prototype.forEach.call(dots, function (d, i) {
+          d.classList.toggle('active', i === albumIdx);
+        });
+      }
+      if (albumPrev) albumPrev.disabled = albumIdx === 0;
+      if (albumNext) albumNext.disabled = albumIdx === ALBUM.length - 1;
+    }
+
+    function buildAlbumDots() {
+      if (!albumDots) return;
+      albumDots.innerHTML = '';
+      ALBUM.forEach(function (_, i) {
+        var dot = document.createElement('button');
+        dot.className = 'album-dot';
+        dot.setAttribute('aria-label', 'Фото ' + (i + 1));
+        dot.addEventListener('click', function () {
+          albumIdx = i;
+          renderAlbum();
+        });
+        albumDots.appendChild(dot);
+      });
+    }
+
+    function albumPrevFn() { if (albumIdx > 0) { albumIdx--; renderAlbum(); } }
+    function albumNextFn() { if (albumIdx < ALBUM.length - 1) { albumIdx++; renderAlbum(); } }
+
+    if (albumPrev) albumPrev.addEventListener('click', albumPrevFn);
+    if (albumNext) albumNext.addEventListener('click', albumNextFn);
+
+    document.addEventListener('keydown', function (e) {
+      var archiveTab = document.getElementById('tab-archive');
+      if (!archiveTab || !archiveTab.classList.contains('active')) return;
+      if (e.key === 'ArrowLeft')  { e.preventDefault(); albumPrevFn(); }
+      if (e.key === 'ArrowRight') { e.preventDefault(); albumNextFn(); }
+    });
+
+    buildAlbumDots();
+    renderAlbum();
+
+    /* ===== Архив ===== */
+    var archiveInput = document.getElementById('archivePassword');
+    var archiveBtn = document.getElementById('archiveSubmit');
+    var archiveError = document.getElementById('archiveError');
+    var archiveLock = document.getElementById('archiveLock');
+    var archiveContent = document.getElementById('archiveContent');
+    var archiveTabBtn = document.querySelector('[data-tab="archive"]');
+
+    function tryUnlockArchive() {
+      if (!archiveInput) return;
+      var val = (archiveInput.value || '').trim();
+      if (val === ARCHIVE_PASSWORD) {
+        if (archiveError) archiveError.textContent = '';
+        if (archiveLock) archiveLock.style.display = 'none';
+        if (archiveContent) archiveContent.classList.add('unlocked');
+        if (archiveTabBtn) archiveTabBtn.classList.remove('locked');
+      } else {
+        if (archiveError) archiveError.textContent = 'НЕВЕРНЫЙ КОД ДОСТУПА';
+        if (archiveInput) { archiveInput.value = ''; archiveInput.focus(); }
+        var screenEl = document.querySelector('.screen');
+        if (screenEl) {
+          screenEl.style.animation = 'none';
+          void screenEl.offsetWidth;
+          screenEl.style.animation = 'shake .3s 2';
+        }
+      }
+    }
+
+    if (archiveBtn) archiveBtn.addEventListener('click', tryUnlockArchive);
+    if (archiveInput) {
+      archiveInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { e.preventDefault(); tryUnlockArchive(); }
+      });
+    }
+
+    /* ===== Часы в досье ===== */
+    function tick() {
+      var el = document.getElementById('clock');
+      if (!el) return;
+      var d = new Date();
+      var p = function (n) { return String(n).padStart(2, '0'); };
+      el.textContent = p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds());
+    }
+    setInterval(tick, 1000); tick();
+
+    /* ===== Глитч ===== */
+    var glitch = document.getElementById('glitch');
+    function scheduleGlitch() {
+      var delay = 5000 + Math.random() * 10000;
+      setTimeout(function () {
+        if (!glitch) return;
+        glitch.classList.add('active');
+        setTimeout(function () { glitch.classList.remove('active'); }, 200);
+        scheduleGlitch();
+      }, delay);
+    }
+    scheduleGlitch();
+
+    /* ===== ESC / F5 ===== */
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        var opened = false;
+        Object.keys(modals).forEach(function (key) {
+          if (modals[key] && modals[key].classList.contains('visible')) {
+            closeModal(key);
+            opened = true;
+          }
+        });
+        if (opened) return;
+
+        document.body.style.transition = 'opacity .4s';
+        document.body.style.opacity = '0';
+        setTimeout(function () {
+          document.body.innerHTML =
+            '<div style="color:#8a94a2;font-family:monospace;background:#000;height:100vh;display:flex;align-items:center;justify-content:center;letter-spacing:4px">СВЯЗЬ ПРЕРВАНА<span style="animation:blink 1s steps(2) infinite">_</span></div>';
+        }, 400);
+      }
+      if (e.key === 'F5') { e.preventDefault(); location.reload(); }
+    });
+
+    /* ===== Микро-дрожь данных ===== */
+    var data = document.getElementById('data');
+    if (data) {
+      setInterval(function () {
+        if (Math.random() > 0.9) {
+          data.style.transform = 'translate(' + (Math.random()*1-0.5) + 'px,' + (Math.random()*1-0.5) + 'px)';
+          setTimeout(function () { data.style.transform = 'translate(0,0)'; }, 60);
+        }
+      }, 500);
+    }
+
+  })();
+</script>
+
+<style>
+  @keyframes shake {
+    0%, 100% { transform: translate(0, 0); }
+    25% { transform: translate(-3px, 1px); }
+    75% { transform: translate(3px, -1px); }
+  }
+</style>
+
+</body>
+</html>
