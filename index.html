@@ -933,6 +933,31 @@
     white-space: pre-line;
   }
 
+  /* Заглушка пустого списка */
+  .rel-empty-state {
+    border: 1px dashed var(--gray-4);
+    background: rgba(11,13,16,.4);
+    padding: 40px 24px;
+    text-align: center;
+    color: var(--gray-5);
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+  .rel-empty-state .icon {
+    font-size: 28px;
+    color: var(--gray-4);
+    margin-bottom: 12px;
+    letter-spacing: 0;
+  }
+  .rel-empty-state .sub {
+    margin-top: 10px;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--gray-4);
+    text-transform: none;
+  }
+
   /* ===== Архив ===== */
   .archive-lock {
     flex: 1 1 auto;
@@ -1193,10 +1218,8 @@
     <div class="file-icon file-pmp" data-open="pmp">
       <div class="icon">
         <svg viewBox="0 0 64 56" shape-rendering="crispEdges">
-          <!-- папка -->
           <path d="M4 10 h22 l6 6 h28 v34 H4 z" fill="#1f252e" stroke="#5a6472" stroke-width="2"/>
           <path d="M4 16 h56" stroke="#3a424e" stroke-width="2"/>
-          <!-- красный крест -->
           <rect x="26" y="26" width="12" height="4" fill="#c85a3a"/>
           <rect x="30" y="22" width="4" height="12" fill="#c85a3a"/>
         </svg>
@@ -1210,7 +1233,6 @@
         <svg viewBox="0 0 64 56" shape-rendering="crispEdges">
           <path d="M4 10 h22 l6 6 h28 v34 H4 z" fill="#1f252e" stroke="#5a6472" stroke-width="2"/>
           <path d="M4 16 h56" stroke="#3a424e" stroke-width="2"/>
-          <!-- гаечный ключ -->
           <rect x="22" y="30" width="20" height="4" fill="#8a94a2"/>
           <rect x="20" y="28" width="4" height="8" fill="#8a94a2"/>
           <rect x="40" y="28" width="4" height="8" fill="#8a94a2"/>
@@ -1226,7 +1248,6 @@
         <svg viewBox="0 0 64 56" shape-rendering="crispEdges">
           <path d="M4 10 h22 l6 6 h28 v34 H4 z" fill="#2a1410" stroke="#8a3a24" stroke-width="2"/>
           <path d="M4 16 h56" stroke="#8a3a24" stroke-width="2"/>
-          <!-- огонёк -->
           <path d="M32 24 L36 32 L33 34 L38 42 L32 46 L26 42 L31 34 L28 32 Z"
                 fill="#c85a3a" stroke="#e87a5a" stroke-width="1"/>
         </svg>
@@ -1238,16 +1259,13 @@
     <div class="file-icon file-dossier" id="btnDossier">
       <div class="icon">
         <svg viewBox="0 0 140 120" shape-rendering="crispEdges">
-          <!-- папка -->
           <path d="M8 22 h44 l10 10 h70 v76 H8 z"
                 fill="#1a1e25" stroke="#c85a3a" stroke-width="3"/>
           <path d="M8 34 h124" stroke="#8a3a24" stroke-width="3"/>
-          <!-- бумаги -->
           <rect x="26" y="44" width="88" height="6" fill="#5a6472"/>
           <rect x="26" y="56" width="70" height="4" fill="#3a424e"/>
           <rect x="26" y="64" width="80" height="4" fill="#3a424e"/>
           <rect x="26" y="72" width="60" height="4" fill="#3a424e"/>
-          <!-- огонёк-печать -->
           <path d="M100 84 L108 96 L104 100 L112 112 L100 118 L88 112 L96 100 L92 96 Z"
                 fill="#c85a3a" stroke="#e87a5a" stroke-width="1.5"/>
         </svg>
@@ -1444,15 +1462,6 @@
               <div class="row"><span class="k">—</span><span class="v">Получен позывной <span class="fire">Flamme</span></span></div>
               <div class="row"><span class="k">—</span><span class="v">Направлена на комплекс ERES M-427</span></div>
             </div>
-
-            <div class="section">
-              <h2>Примечание наблюдателя</h2>
-              <div class="row full">
-                "Зациклена на объекте обессивности — зажигалках. Коллекция из четырёх объектов.<br>
-                Привычка к курению. Позывной: Flamme."
-                <br><span style="color:#3d5a80">— СБ-03</span>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -1542,15 +1551,11 @@
             <div class="equip-card">
               <div class="thumb">
                 <svg viewBox="0 0 64 64" shape-rendering="crispEdges">
-                  <!-- ремень -->
                   <rect x="26" y="4" width="12" height="14" fill="#3a424e"/>
                   <rect x="28" y="4" width="8" height="14" fill="#242a33"/>
-                  <!-- подсумок -->
                   <rect x="14" y="18" width="36" height="40" fill="#3a424e" stroke="#5a6472" stroke-width="2"/>
                   <rect x="14" y="28" width="36" height="3" fill="#242a33"/>
-                  <!-- клапан -->
                   <rect x="16" y="20" width="32" height="8" fill="#5a6472"/>
-                  <!-- нашивка-костёр -->
                   <path d="M28 40 L32 48 L29 50 L34 58 L32 60 L26 56 L29 50 L26 48 Z"
                         fill="#c85a3a" stroke="#e87a5a" stroke-width="1"/>
                 </svg>
@@ -1567,19 +1572,14 @@
             <div class="equip-card">
               <div class="thumb">
                 <svg viewBox="0 0 64 64" shape-rendering="crispEdges">
-                  <!-- коробка -->
                   <rect x="8" y="22" width="48" height="34" fill="#3a424e" stroke="#5a6472" stroke-width="2"/>
                   <rect x="8" y="28" width="48" height="3" fill="#242a33"/>
-                  <!-- шомпол -->
                   <rect x="14" y="36" width="36" height="3" fill="#8a94a2"/>
                   <rect x="12" y="34" width="4" height="7" fill="#5a6472"/>
-                  <!-- ёршик -->
                   <rect x="18" y="42" width="22" height="2" fill="#b8a06a"/>
                   <rect x="18" y="46" width="22" height="2" fill="#b8a06a"/>
-                  <!-- маслёнка -->
                   <rect x="42" y="42" width="10" height="10" fill="#3d5a80" stroke="#5a7aa0" stroke-width="1"/>
                   <rect x="45" y="38" width="4" height="4" fill="#3d5a80"/>
-                  <!-- крышка -->
                   <rect x="8" y="16" width="48" height="6" fill="#5a6472" stroke="#8a94a2" stroke-width="1"/>
                 </svg>
               </div>
@@ -1602,17 +1602,13 @@
             <div class="equip-card">
               <div class="thumb">
                 <svg viewBox="0 0 64 64" shape-rendering="crispEdges">
-                  <!-- пачка -->
                   <rect x="16" y="14" width="32" height="44" fill="#8a94a2" stroke="#b8c0cc" stroke-width="2"/>
                   <rect x="16" y="14" width="32" height="8" fill="#3d5a80"/>
-                  <!-- надпись -->
                   <rect x="20" y="28" width="24" height="3" fill="#3a424e"/>
                   <rect x="20" y="34" width="18" height="3" fill="#3a424e"/>
                   <rect x="20" y="40" width="22" height="3" fill="#3a424e"/>
-                  <!-- сигарета сверху -->
                   <rect x="22" y="8" width="4" height="8" fill="#e2e8f0"/>
                   <rect x="22" y="8" width="4" height="3" fill="#c85a3a"/>
-                  <!-- огонёк -->
                   <circle cx="24" cy="7" r="2" fill="#e87a5a"/>
                 </svg>
               </div>
@@ -1628,18 +1624,13 @@
             <div class="equip-card fire">
               <div class="thumb">
                 <svg viewBox="0 0 64 64" shape-rendering="crispEdges">
-                  <!-- корпус -->
                   <rect x="22" y="20" width="20" height="36" fill="#5a6472" stroke="#8a94a2" stroke-width="2"/>
                   <rect x="22" y="28" width="20" height="3" fill="#3a424e"/>
                   <rect x="22" y="48" width="20" height="3" fill="#3a424e"/>
-                  <!-- крышка -->
                   <rect x="22" y="14" width="20" height="7" fill="#8a94a2" stroke="#b8c0cc" stroke-width="1"/>
-                  <!-- колесо -->
                   <circle cx="32" cy="17" r="3" fill="#242a33" stroke="#b8c0cc" stroke-width="1"/>
-                  <!-- огонь -->
                   <path d="M32 4 L35 10 L32 12 L36 17 L32 19 L28 17 L30 12 L29 10 Z"
                         fill="#c85a3a" stroke="#e87a5a" stroke-width="1"/>
-                  <!-- гравировка "Знамя" -->
                   <rect x="26" y="36" width="12" height="2" fill="#e87a5a"/>
                   <rect x="26" y="40" width="8" height="2" fill="#e87a5a"/>
                 </svg>
@@ -1663,7 +1654,6 @@
                   <circle cx="32" cy="17" r="3" fill="#242a33" stroke="#b8c0cc" stroke-width="1"/>
                   <path d="M32 4 L35 10 L32 12 L36 17 L32 19 L28 17 L30 12 L29 10 Z"
                         fill="#c85a3a" stroke="#e87a5a" stroke-width="1"/>
-                  <!-- красная надпись Flamme -->
                   <rect x="24" y="34" width="16" height="3" fill="#c85a3a"/>
                   <rect x="26" y="40" width="12" height="2" fill="#c85a3a"/>
                   <rect x="28" y="44" width="8" height="2" fill="#c85a3a"/>
@@ -1688,7 +1678,6 @@
                   <circle cx="32" cy="17" r="3" fill="#242a33" stroke="#8a94a2" stroke-width="1"/>
                   <path d="M32 4 L35 10 L32 12 L36 17 L32 19 L28 17 L30 12 L29 10 Z"
                         fill="#c85a3a" stroke="#e87a5a" stroke-width="1"/>
-                  <!-- патрон 7.62 -->
                   <rect x="28" y="34" width="8" height="14" fill="#b8a06a" stroke="#e2c88a" stroke-width="1"/>
                   <rect x="28" y="32" width="8" height="3" fill="#8a6a3a"/>
                   <rect x="30" y="46" width="4" height="2" fill="#8a6a3a"/>
@@ -1713,7 +1702,6 @@
                   <circle cx="32" cy="17" r="3" fill="#242a33" stroke="#b8c0cc" stroke-width="1"/>
                   <path d="M32 4 L35 10 L32 12 L36 17 L32 19 L28 17 L30 12 L29 10 Z"
                         fill="#c85a3a" stroke="#e87a5a" stroke-width="1"/>
-                  <!-- ореол -->
                   <ellipse cx="32" cy="38" rx="7" ry="9" fill="none" stroke="#ffd166" stroke-width="2"/>
                   <ellipse cx="32" cy="38" rx="3" ry="4" fill="#ffd166"/>
                   <rect x="30" y="46" width="4" height="6" fill="#c85a3a"/>
@@ -1737,30 +1725,12 @@
           <div class="rel-list-view" id="relListView">
             <div class="section">
               <h2>Взаимоотношения на комплексе</h2>
-              <div class="relation-legend">
-                <span class="legend-chip rel-trust">Недоверие</span>
-                <span class="legend-chip rel-longing">Тоска</span>
-                <span class="legend-chip rel-neutral">Нейтральные</span>
-                <span class="legend-chip rel-friend">Дружба</span>
-                <span class="legend-chip rel-bond">Крепкая связь</span>
-                <span class="legend-chip rel-love">Любовь</span>
-                <span class="legend-chip rel-dead">Мертв</span>
-                <span class="legend-chip rel-fear">Страх</span>
-                <span class="legend-chip rel-disappoint">Разочарование</span>
-                <span class="legend-chip rel-respect">Уважение</span>
-                <span class="legend-chip rel-regret">Сожаление</span>
-                <span class="legend-chip rel-sympathy">Симпатия</span>
-                <span class="legend-chip rel-disgust">Отвращение</span>
-              </div>
             </div>
 
-            <div class="relation-grid" id="relationGrid"></div>
-
-            <div class="section">
-              <h2>Заметка</h2>
-              <div class="row full">
-                Нажми на карточку, чтобы открыть подробную запись.
-              </div>
+            <div class="rel-empty-state">
+              <div class="icon">[ ]</div>
+              <div>ЗАПИСИ ОТСУТСТВУЮТ</div>
+              <div class="sub">Данные о взаимоотношениях не заполнены или недоступны.</div>
             </div>
           </div>
 
@@ -1818,7 +1788,6 @@
   (function () {
     "use strict";
 
-    /* ===== Часы на boot-экране ===== */
     function tickBootClock() {
       var el = document.getElementById('bootClock');
       if (!el) return;
@@ -1828,7 +1797,6 @@
     }
     setInterval(tickBootClock, 1000); tickBootClock();
 
-    /* ===== Открытие досье ===== */
     function openDossier() {
       var boot = document.getElementById('boot');
       var dossier = document.getElementById('dossier');
@@ -1849,12 +1817,8 @@
       sep:  document.getElementById('modalSep')
     };
 
-    function openModal(key) {
-      if (modals[key]) modals[key].classList.add('visible');
-    }
-    function closeModal(key) {
-      if (modals[key]) modals[key].classList.remove('visible');
-    }
+    function openModal(key) { if (modals[key]) modals[key].classList.add('visible'); }
+    function closeModal(key) { if (modals[key]) modals[key].classList.remove('visible'); }
 
     document.querySelectorAll('[data-open]').forEach(function (el) {
       el.addEventListener('click', function (e) {
@@ -1862,14 +1826,12 @@
         openModal(el.getAttribute('data-open'));
       });
     });
-
     document.querySelectorAll('[data-close]').forEach(function (el) {
       el.addEventListener('click', function (e) {
         e.stopPropagation();
         closeModal(el.getAttribute('data-close'));
       });
     });
-
     Object.keys(modals).forEach(function (key) {
       var m = modals[key];
       if (m) {
@@ -1893,20 +1855,7 @@
       });
     });
 
-    /* ===== Взаимоотношения ===== */
-    var RELATIONS = [
-      { name: "ADLR", statuses: ["Нейтральные"],
-        note: "Пересекались в столовой. Обменялись парой фраз. Ничего примечательного." },
-      { name: "HABR.03.023 Strasser", statuses: ["Нейтральные"],
-        note: "Периодически пересекались во время оказания медицинской помощи. Явное раздражение от общения, но контакт продолжался две с половиной недели. После отбытия HABR раздражение снизилось." },
-      { name: "HABR.XX.XXX", statuses: ["Разочарование"],
-        note: "Конкретный юнит модели HABR, с которым LSTR.217 часто пересекалась. Проверка резонанса не выявила ничего неправомерного. Отношения остаются напряжёнными." },
-      { name: "LSTR.XXX", statuses: ["Дружба"],
-        note: "Сестра по серии. Общаются по служебным вопросам." },
-      { name: "STAR.XX.XXX", statuses: ["Уважение"],
-        note: "Уважение за профессионализм." }
-    ];
-
+    /* ===== Альбом ===== */
     var ALBUM = [
       { src: "1.png", caption: "ФОТО 01 // LSTR.217" },
       { src: "2.png", caption: "ФОТО 02 // Хаймат" },
@@ -1918,103 +1867,6 @@
 
     var ARCHIVE_PASSWORD = '217';
 
-    function statusClass(status) {
-      var map = {
-        'Недоверие': 'rel-trust',
-        'Тоска': 'rel-longing',
-        'Нейтральные': 'rel-neutral',
-        'Дружба': 'rel-friend',
-        'Крепкая связь': 'rel-bond',
-        'Любовь': 'rel-love',
-        'Мертв': 'rel-dead',
-        'Страх': 'rel-fear',
-        'Разочарование': 'rel-disappoint',
-        'Уважение': 'rel-respect',
-        'Сожаление': 'rel-regret',
-        'Симпатия': 'rel-sympathy',
-        'Отвращение': 'rel-disgust'
-      };
-      return map[status] || 'rel-neutral';
-    }
-
-    function escapeHtml(s) {
-      return String(s).replace(/[&<>"']/g, function (c) {
-        return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
-      });
-    }
-
-    function previewOf(note) {
-      if (!note) return 'Записи отсутствуют.';
-      var firstLine = note.split('\n')[0];
-      return firstLine.length > 120 ? firstLine.slice(0, 117) + '…' : firstLine;
-    }
-
-    function renderStatuses(statuses, cls) {
-      if (!statuses || statuses.length === 0) return '';
-      return statuses.map(function (st) {
-        return '<span class="' + cls + ' ' + statusClass(st) + '">' + escapeHtml(st) + '</span>';
-      }).join('');
-    }
-
-    var relGrid = document.getElementById('relationGrid');
-    var relWrap = document.getElementById('relationsWrap');
-    var relDetailBody = document.getElementById('relDetailBody');
-    var relBack = document.getElementById('relBack');
-
-    RELATIONS.sort(function (a, b) {
-      return a.name.localeCompare(b.name, 'ru');
-    });
-
-    if (relGrid) {
-      RELATIONS.forEach(function (rel, idx) {
-        var card = document.createElement('div');
-        card.className = 'rel-card';
-        card.setAttribute('data-idx', idx);
-
-        var statusesHtml = rel.statuses && rel.statuses.length
-          ? '<div class="rel-statuses">' + renderStatuses(rel.statuses, 'rel-status') + '</div>'
-          : '';
-
-        card.innerHTML =
-          statusesHtml +
-          '<div class="rel-name">' + escapeHtml(rel.name) + '</div>' +
-          '<div class="rel-preview">' + escapeHtml(previewOf(rel.note)) + '</div>';
-
-        card.addEventListener('click', function () { openRelDetail(idx); });
-        relGrid.appendChild(card);
-      });
-    }
-
-    function openRelDetail(idx) {
-      var rel = RELATIONS[idx];
-      if (!rel || !relDetailBody) return;
-
-      var statusesHtml = rel.statuses && rel.statuses.length
-        ? '<div class="rel-detail-statuses">' + renderStatuses(rel.statuses, 'rel-detail-status') + '</div>'
-        : '';
-
-      var noteHtml = rel.note
-        ? '<div class="rel-detail-note">' + escapeHtml(rel.note) + '</div>'
-        : '<div class="rel-detail-note" style="opacity:.5">Нет записей.</div>';
-
-      relDetailBody.innerHTML =
-        '<div class="rel-detail-card">' +
-          '<div class="rel-detail-name">' + escapeHtml(rel.name) + '</div>' +
-          statusesHtml +
-          noteHtml +
-        '</div>';
-
-      if (relWrap) relWrap.classList.add('detail-open');
-      if (relDetailBody) relDetailBody.scrollTop = 0;
-    }
-
-    if (relBack) {
-      relBack.addEventListener('click', function () {
-        if (relWrap) relWrap.classList.remove('detail-open');
-      });
-    }
-
-    /* ===== Альбом ===== */
     var albumIdx = 0;
     var albumImg = document.getElementById('albumImg');
     var albumCaption = document.getElementById('albumCaption');
